@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring WebFlux com Thymeleaf</title>
+</head>
+<body>
+<h2>Formulário de Upload de Vídeo</h2>
+<video src="videos/d817fc37-c221-43d5-b829-e0de1966587e" width="720px" height="480px" controls preload="none">
+</video>
+<h1>Single File Upload Demo!</h1>
+<form class="mt-3" action="videos/upload" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label >User</label>
+        <input type="text" name="user-name"> <br/><br/>
+        <label >Single</label>
+        <input type="file" name="fileToUpload" id="fileToUpload1">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+</body>
+</html>
