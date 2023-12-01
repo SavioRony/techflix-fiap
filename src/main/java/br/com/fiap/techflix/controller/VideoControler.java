@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 
@@ -16,12 +17,18 @@ public class VideoControler {
     @Autowired
     private VideoService videoService;
 
+    @GetMapping
+    public Flux<Video> getVideos(){
+        return videoService.getVideos();
+    }
+
 
     @GetMapping(value = "{title}", produces = "video/mp4")
     public Mono<Resource> getVideo(@PathVariable("title") String title, @RequestHeader("range") String range) {
         System.out.println("Range: " + range);
         return videoService.getVideo(title);
     }
+
 
     @PostMapping("/upload")
     public Mono<Video> uploadVideo(@RequestPart("titulo") String titulo, @RequestPart("fileToUpload") Mono<FilePart> filePartMono) {

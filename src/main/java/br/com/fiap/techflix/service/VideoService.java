@@ -7,6 +7,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.file.Path;
@@ -32,9 +33,13 @@ public class VideoService {
     public Mono<Video> uploadVideo(String titulo, Mono<FilePart> filePartMono) {
         Video video = new Video(titulo);
         return filePartMono
-                .doOnNext(fp -> video.setNome(fp.filename().replace(".mp4", "")))
+                .doOnNext(fp -> video.setNomeArquivo(fp.filename().replace(".mp4", "")))
                 .flatMap(fp -> fp.transferTo(basePath.resolve(String.format(VIDEO_TYPE_FORMAT, video.getId()))))
                 .then(Mono.defer(() -> videoRepository.save(video)));
+    }
+
+    public Flux<Video> getVideos() {
+        return videoRepository.findAll();
     }
 }
 

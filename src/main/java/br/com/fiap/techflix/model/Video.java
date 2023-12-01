@@ -13,7 +13,7 @@ public class Video {
 
     private UUID id;
     private String titulo;
-    private String nome;
+    private String nomeArquivo;
     private String path;
     private Integer curtidas;
     private Integer visualizacao;
