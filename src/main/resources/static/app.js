@@ -30,11 +30,21 @@ $(document).ready(function () {
     });
 
     // Lógica para obter a lista de vídeos e exibir na página (adapte conforme necessário)
-    function getVideoList() {
-        $.get("http://localhost:8080/videos", function (data) {
-            displayVideoList(data)
+    function getVideoList(page, size) {
+        $.get(`http://localhost:8080/videos?page=${page}&size=${size}`, function (data) {
+            displayVideoList(data.content)
         });
     }
+
+    // Paginação
+    var currentPage = 0;
+    var pageSize = 10;
+
+    // Evento para carregar a próxima página
+    $("#loadMoreBtn").click(function () {
+        currentPage++;
+        getVideoList(currentPage, pageSize);
+    });
 
     function displayVideoList(videos) {
         var videoListContainer = $("#videoList");
@@ -51,7 +61,7 @@ $(document).ready(function () {
         });
     }
 
+    // Carregando a primeira página ao carregar a página HTML
+    getVideoList(currentPage, pageSize);
 
-    // Chame a função para obter a lista de vídeos ao carregar a página
-    getVideoList();
 });
