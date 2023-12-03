@@ -83,17 +83,24 @@ $(document).ready(function () {
         var videoListContainer = $("#videoList");
         videoListContainer.empty(); // Limpa o conteúdo anterior
 
-        // Itera sobre a lista de vídeos e os exibe na página
-        videos.forEach(function (video) {
-            var videoItem = $("<div class='video-item'>" +
-                "<video controls preload='none' width='720px' height='480px'>" +
+        videos.forEach(function (video, index) {
+            // Adiciona uma nova linha a cada 2 vídeos para criar 2 cards por linha
+            if (index % 2 === 0) {
+                $("#videoList").append("<div class='row'></div>");
+            }
+
+            // Cria o card do Bootstrap para cada vídeo
+            var videoItem = $("<div class='col-md-6 mb-4'>" +
+                "<div class='card'>" +
+                "<video class='card-img-top' controls preload='none' width='100%' height='auto'>" +
                 "<source src='http://localhost:8080/videos/" + video.id + "' type='video/mp4'>" +
                 "Seu navegador não suporta o elemento <code>video</code>" +
                 "</video>" +
-                "<div class='video-info'>" +
-                "<h5 class='video-title'>" + video.titulo + "</h5>" +
-                "<p class='video-date'>" + formatarData(video.dataDeCadastro) + "</p>" +
-                "<button class='btn btn-warning open-update-modal'" +
+                "<div class='card-body'>" +
+                "<h5 class='card-title'>" + video.titulo + "</h5>" +
+                "<p class='card-text'><b>Categoria: </b>" + video.categoria + "</p>" +
+                "<p class='card-text'><b>Data de publicação: </b>" + formatarData(video.dataDeCadastro) + "</p>" +
+                "<button class='btn btn-warning open-update-modal m-2'" +
                 "        data-video-id='" + video.id + "'" +
                 "        data-video-titulo='" + video.titulo + "'" +
                 "        data-video-categoria='" + video.categoria + "'" +
@@ -102,7 +109,7 @@ $(document).ready(function () {
                 "        title='Atualizar Vídeo'>" +
                 "    Atualizar" +
                 "</button>" +
-                "<button class='btn btn-danger open-delete-modal'" +
+                "<button class='btn btn-danger open-delete-modal m-2'" +
                 "        data-video-id='" + video.id + "'" +
                 "        data-toggle='tooltip'" +
                 "        data-placement='top'" +
@@ -110,10 +117,13 @@ $(document).ready(function () {
                 "    Excluir" +
                 "</button>" +
                 "</div>" +
+                "</div>" +
                 "</div>");
 
-            videoListContainer.append(videoItem);
+            // Adiciona o card à última linha
+            $(".row:last").append(videoItem);
         });
+
     }
 
     // Atualização de vídeo
