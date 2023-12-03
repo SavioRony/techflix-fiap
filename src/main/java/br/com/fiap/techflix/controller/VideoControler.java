@@ -1,6 +1,5 @@
 package br.com.fiap.techflix.controller;
 
-import br.com.fiap.techflix.enums.Categoria;
 import br.com.fiap.techflix.model.Video;
 import br.com.fiap.techflix.service.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;

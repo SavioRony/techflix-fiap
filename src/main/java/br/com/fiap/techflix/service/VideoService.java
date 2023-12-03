@@ -1,6 +1,5 @@
 package br.com.fiap.techflix.service;
 
-import br.com.fiap.techflix.enums.Categoria;
 import br.com.fiap.techflix.model.Video;
 import br.com.fiap.techflix.repository.VideoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,7 @@ public class VideoService {
     }
 
     public Mono<Video> uploadVideo(String titulo, String categoria, Mono<FilePart> filePartMono) {
-        Video video = new Video(titulo, Categoria.fromString(categoria));
+        Video video = new Video(titulo, categoria);
         return filePartMono
                 .doOnNext(fp -> video.setNomeArquivo(fp.filename().replace(".mp4", "")))
                 .flatMap(fp -> fp.transferTo(basePath.resolve(String.format(VIDEO_TYPE_FORMAT, video.getId()))))
@@ -67,7 +66,7 @@ public class VideoService {
         return videoRepository.findById(videoId)
                 .flatMap(video -> {
                     video.setTitulo(novoTitulo);
-                    video.setCategoria(Categoria.fromString(novaCategoria));
+                    video.setCategoria(novaCategoria);
                     return videoRepository.save(video);
                 });
     }

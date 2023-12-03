@@ -1,6 +1,5 @@
 package br.com.fiap.techflix.model;
 
-import br.com.fiap.techflix.enums.Categoria;
 import lombok.Data;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -19,11 +18,11 @@ public class Video {
     private LocalDateTime dataDeCadastro;
     private String path;
     private Integer curtidas;
-    private Categoria categoria;
+    private String categoria;
     private Integer visualizacao;
 
 
-    public Video(String titulo, Categoria categoria) {
+    public Video(String titulo, String categoria) {
         this.id = UUID.randomUUID();
         this.titulo = titulo;
         this.categoria = categoria;
