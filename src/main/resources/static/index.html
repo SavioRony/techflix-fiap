@@ -9,30 +9,188 @@
 </head>
 <body>
 
-<div class="container mt-5">
-    <h1>Video App</h1>
+<div class="container">
+    <h1>Tech Flix</h1>
 
-    <!-- Formulário para upload de vídeo -->
-    <form id="uploadForm">
-        <div class="form-group">
-            <label for="titulo">Título:</label>
-            <input type="text" class="form-control" id="titulo" required>
+    <div class="card mb-2">
+        <div class="card-header">
+            Cadastro de videos
         </div>
-
-        <div class="form-group">
-            <label for="fileToUpload">Escolher Vídeo:</label>
-            <input type="file" class="form-control-file" id="fileToUpload" accept="video/*" required>
+        <div class="card-body">
+            <form id="uploadForm">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="titulo">Título:</label>
+                            <input type="text" class="form-control" id="titulo" required>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="categoria">Categoria:</label>
+                            <select class="form-control" id="categoria" required>
+                                <option value="ACAO">Ação</option>
+                                <option value="COMEDIA">Comedia</option>
+                                <option value="DRAMA">Drama</option>
+                                <option value="FICCAO_CIENTIFICA">Ficção cientifica</option>
+                                <option value="ROMANCE">Romance</option>
+                                <option value="TERROR">Terror</option>
+                                <option value="ANIMACAO">Animação</option>
+                                <option value="AVENTURA">Aventura</option>
+                                <option value="DOCUMENTARIO">Documentario</option>
+                                <option value="FANTASIA">Fantasia</option>
+                                <option value="MUSICAL">Musical</option>
+                                <option value="SUSPENSE">Suspense</option>
+                                <option value="OUTRO">Outro</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="fileToUpload">
+                        <label class="custom-file-label" for="uploadForm">Escolher arquivo</label>
+                    </div>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit">Enviar</button>
+                    </div>
+                </div>
+            </form>
         </div>
+    </div>
 
-        <button type="submit" class="btn btn-primary">Enviar Vídeo</button>
-    </form>
+    <div class="card mb-2">
+        <div class="card-header">
+            Filtros
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">Buscar por titulo</h5>
+            <form id="buscarPorTitulo">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="titulo" id="tituloBusca" required
+                           aria-describedby="button-addon2">
+                    <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Buscar</button>
+                </div>
+            </form>
 
-    <!-- Botão para carregar mais vídeos -->
-    <button id="loadMoreBtn" class="btn btn-secondary mt-3">Carregar Mais</button>
+            <h5 class="card-title">Buscar por categoria</h5>
+            <form id="buscarPorCategoria">
+                <div class="input-group mb-3">
+                    <select class="form-control" id="categoriaBuscar" required aria-describedby="button-addon4">
+                        <option value="ACAO">Ação</option>
+                        <option value="COMEDIA">Comedia</option>
+                        <option value="DRAMA">Drama</option>
+                        <option value="FICCAO_CIENTIFICA">Ficção cientifica</option>
+                        <option value="ROMANCE">Romance</option>
+                        <option value="TERROR">Terror</option>
+                        <option value="ANIMACAO">Animação</option>
+                        <option value="AVENTURA">Aventura</option>
+                        <option value="DOCUMENTARIO">Documentario</option>
+                        <option value="FANTASIA">Fantasia</option>
+                        <option value="MUSICAL">Musical</option>
+                        <option value="SUSPENSE">Suspense</option>
+                        <option value="OUTRO">Outro</option>
+                    </select>
+                    <button class="btn btn-outline-secondary" type="submit" id="button-addon4">Buscar</button>
+                </div>
+            </form>
+
+            <h5 class="card-title">Buscar por data</h5>
+            <form id="buscarPorData">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="dataInicio">Data de Início:</label>
+                            <input type="datetime-local" class="form-control" id="dataInicio" required>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label for="dataInicio">Data de fim:</label>
+                        <div class="input-group mb-3">
+                            <input type="datetime-local" class="form-control" placeholder="titulo" id="dataFim" required
+                                   aria-describedby="button-addon3">
+                            <button class="btn btn-outline-secondary" type="submit" id="button-addon3">Buscar</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <h2>Lista de Videos</h2>
 
     <!-- Listagem de vídeos -->
     <div id="videoList" class="mt-4">
         <!-- Os vídeos serão exibidos aqui -->
+    </div>
+
+    <!-- Botão para carregar mais vídeos -->
+    <button id="loadMoreBtn" class="btn btn-secondary mt-3">Carregar Mais</button>
+
+    <!-- Modal de Atualização de Vídeo -->
+    <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateModalLabel">Atualizar Vídeo</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateForm">
+                        <div class="form-group">
+                            <label for="videoIdToUpdate">ID do Vídeo:</label>
+                            <input type="text" class="form-control" id="videoIdToUpdate" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="novoTitulo">Novo Título:</label>
+                            <input type="text" class="form-control" id="novoTitulo" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="novaCategoria">Nova Categoria:</label>
+                            <select class="form-control" id="novaCategoria" required>
+                                <option value="ACAO">Ação</option>
+                                <option value="COMEDIA">Comedia</option>
+                                <option value="DRAMA">Drama</option>
+                                <option value="FICCAO_CIENTIFICA">Ficção cientifica</option>
+                                <option value="ROMANCE">Romance</option>
+                                <option value="TERROR">Terror</option>
+                                <option value="ANIMACAO">Animação</option>
+                                <option value="AVENTURA">Aventura</option>
+                                <option value="DOCUMENTARIO">Documentario</option>
+                                <option value="FANTASIA">Fantasia</option>
+                                <option value="MUSICAL">Musical</option>
+                                <option value="SUSPENSE">Suspense</option>
+                                <option value="OUTRO">Outro</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Atualizar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação de Exclusão de Vídeo -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirmar Exclusão</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Você tem certeza que deseja excluir este vídeo?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Confirmar Exclusão</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

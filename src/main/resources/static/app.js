@@ -1,16 +1,16 @@
-// Adicione seu código JavaScript aqui para interagir com a API
-
 $(document).ready(function () {
     // Evento de envio do formulário de upload
     $("#uploadForm").submit(function (event) {
         event.preventDefault();
 
         var titulo = $("#titulo").val();
+        var categoria = $("#categoria").val();
         var fileToUpload = $("#fileToUpload")[0].files[0];
 
-        // Lógica para envio de vídeo (adapte conforme necessário)
+        // Lógica para envio de vídeo
         var formData = new FormData();
         formData.append("titulo", titulo);
+        formData.append("categoria", categoria);
         formData.append("fileToUpload", fileToUpload);
 
         $.ajax({
@@ -21,7 +21,7 @@ $(document).ready(function () {
             contentType: false,
             success: function (data) {
                 console.log("Vídeo enviado com sucesso:", data);
-                // Atualize a lista de vídeos ou faça outras operações necessárias
+                getVideoList(currentPage, pageSize);
             },
             error: function (error) {
                 console.error("Erro ao enviar vídeo:", error);
@@ -29,7 +29,40 @@ $(document).ready(function () {
         });
     });
 
-    // Lógica para obter a lista de vídeos e exibir na página (adapte conforme necessário)
+    //Filtro de busca por titulo
+    $("#buscarPorTitulo").submit(function (event) {
+        event.preventDefault();
+        var titulo = $("#tituloBusca").val();
+
+        $.get(`http://localhost:8080/videos/titulo?titulo=${titulo}`, function (data) {
+            displayVideoList(data)
+        });
+    });
+
+    //Filtro de busca por categoria
+    $("#buscarPorCategoria").submit(function (event) {
+        event.preventDefault();
+        var categoria = $("#categoriaBuscar").val();
+
+        $.get(`http://localhost:8080/videos/categoria?categoria=${categoria}`, function (data) {
+            displayVideoList(data)
+        });
+    });
+
+    //Filtro de busca por data
+    $("#buscarPorData").submit(function (event) {
+        event.preventDefault();
+
+        var dataInicio = $("#dataInicio").val();
+        var dataFim = $("#dataFim").val();
+
+        $.get(`http://localhost:8080/videos/data?dataInicio=${dataInicio}&dataFim=${dataFim}`, function (data) {
+            displayVideoList(data);
+        });
+    });
+
+
+    // Lógica para obter a lista de vídeos e exibir na página
     function getVideoList(page, size) {
         $.get(`http://localhost:8080/videos?page=${page}&size=${size}`, function (data) {
             displayVideoList(data.content)
@@ -52,14 +85,129 @@ $(document).ready(function () {
 
         // Itera sobre a lista de vídeos e os exibe na página
         videos.forEach(function (video) {
-            var videoItem = $("<video controls preload='none' width='720px' height='480px'>")
-                .attr("src", "http://localhost:8080/videos/" + video.id)
-                .append("<source src='http://localhost:8080/videos/" + video.id + "' type='video/mp4'>")
-                .append("Seu navegador não suporta o elemento <code>video</code>.");
+            var videoItem = $("<div class='video-item'>" +
+                "<video controls preload='none' width='720px' height='480px'>" +
+                "<source src='http://localhost:8080/videos/" + video.id + "' type='video/mp4'>" +
+                "Seu navegador não suporta o elemento <code>video</code>" +
+                "</video>" +
+                "<div class='video-info'>" +
+                "<h5 class='video-title'>" + video.titulo + "</h5>" +
+                "<p class='video-date'>" + formatarData(video.dataDeCadastro) + "</p>" +
+                "<button class='btn btn-warning open-update-modal'" +
+                "        data-video-id='" + video.id + "'" +
+                "        data-video-titulo='" + video.titulo + "'" +
+                "        data-video-categoria='" + video.categoria + "'" +
+                "        data-toggle='tooltip'" +
+                "        data-placement='top'" +
+                "        title='Atualizar Vídeo'>" +
+                "    Atualizar" +
+                "</button>" +
+                "<button class='btn btn-danger open-delete-modal'" +
+                "        data-video-id='" + video.id + "'" +
+                "        data-toggle='tooltip'" +
+                "        data-placement='top'" +
+                "        title='Excluir Vídeo'>" +
+                "    Excluir" +
+                "</button>" +
+                "</div>" +
+                "</div>");
 
             videoListContainer.append(videoItem);
         });
     }
+
+    // Atualização de vídeo
+    $("#updateForm").submit(function (event) {
+        event.preventDefault();
+
+        var videoIdToUpdate = $("#videoIdToUpdate").val();
+        var novoTitulo = $("#novoTitulo").val();
+        var novaCategoria = $("#novaCategoria").val();
+
+        // Lógica para atualização de vídeo
+        var formData = new FormData();
+        formData.append("novoTitulo", novoTitulo);
+        formData.append("novaCategoria", novaCategoria);
+
+        $.ajax({
+            type: "PUT",
+            url: `http://localhost:8080/videos/${videoIdToUpdate}/update`,
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                console.log("Vídeo atualizado com sucesso:", data);
+                $("#updateModal").modal('hide');
+                getVideoList(currentPage, pageSize);
+            },
+            error: function (error) {
+                console.error("Erro ao atualizar vídeo:", error);
+            }
+        });
+
+    });
+
+    // Evento para abrir o modal de atualização
+    $(document).on("click", ".open-update-modal", function () {
+        var videoIdToUpdate = $(this).data('video-id');
+        var videoTitulo = $(this).data('video-titulo');
+        var videoCategoria = $(this).data('video-categoria');
+
+        // Preencher campos do modal
+        $("#videoIdToUpdate").val(videoIdToUpdate);
+        $("#novoTitulo").val(videoTitulo);
+        $("#novaCategoria").val(videoCategoria);
+
+        // Abrir o modal
+        $("#updateModal").modal('show');
+    });
+
+    function formatarData(data) {
+        var options = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric',
+            hour12: false
+        };
+        return new Intl.DateTimeFormat('pt-BR', options).format(new Date(data));
+    }
+
+    // Evento para abrir o modal de confirmação de exclusão
+    $(document).on("click", ".open-delete-modal", function () {
+        var videoIdToDelete = $(this).data('video-id');
+
+        // Adiciona o ID do vídeo ao botão de confirmação de exclusão
+        $("#confirmDeleteBtn").data('video-id', videoIdToDelete);
+
+        // Abrir o modal
+        $("#deleteModal").modal('show');
+    });
+
+// Evento de confirmação de exclusão
+    $("#confirmDeleteBtn").click(function () {
+        var videoIdToDelete = $(this).data('video-id');
+
+        // Lógica para exclusão de vídeo
+        $.ajax({
+            type: "DELETE",
+            url: `http://localhost:8080/videos/${videoIdToDelete}/delete`,
+            success: function (data) {
+                console.log("Vídeo excluído com sucesso:", data);
+                $("#deleteModal").modal('hide');
+                getVideoList(currentPage, pageSize);
+            },
+            error: function (error) {
+                console.error("Erro ao excluir vídeo:", error);
+            }
+        });
+
+        // Fechar o modal após a exclusão
+        $("#deleteModal").modal('hide');
+        getVideoList(currentPage, pageSize);
+    });
 
     // Carregando a primeira página ao carregar a página HTML
     getVideoList(currentPage, pageSize);
