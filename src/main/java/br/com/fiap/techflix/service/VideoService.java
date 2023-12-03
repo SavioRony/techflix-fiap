@@ -84,5 +84,13 @@ public class VideoService {
                 })
                 .then();
     }
+
+    public Mono<Video> marcarDesmarcarFavorito(UUID videoId, boolean favorito) {
+        return videoRepository.findById(videoId)
+                .flatMap(video -> {
+                    video.setFavorito(favorito);
+                    return videoRepository.save(video);
+                });
+    }
 }
 

@@ -7,7 +7,6 @@ $(document).ready(function () {
         var categoria = $("#categoria").val();
         var fileToUpload = $("#fileToUpload")[0].files[0];
 
-        // Lógica para envio de vídeo
         var formData = new FormData();
         formData.append("titulo", titulo);
         formData.append("categoria", categoria);
@@ -62,10 +61,26 @@ $(document).ready(function () {
     });
 
 
-    // Lógica para obter a lista de vídeos e exibir na página
     function getVideoList(page, size) {
         $.get(`http://localhost:8080/videos?page=${page}&size=${size}`, function (data) {
             displayVideoList(data.content)
+            setFavoriteIcons(data.content)
+        });
+    }
+
+    // Função para definir os ícones de favorito com base nos dados da lista
+    function setFavoriteIcons(videos) {
+        videos.forEach(function (video) {
+            var favoriteIcon = $(`#videoList .favorite-icon[data-video-id='${video.id}']`);
+
+            // Verifique se o vídeo é favorito e ajuste o ícone
+            if (video.favorito) {
+                favoriteIcon.removeClass("far").addClass("fas");
+                favoriteIcon.data("is-favorite", true);
+            } else {
+                favoriteIcon.removeClass("fas").addClass("far");
+                favoriteIcon.data("is-favorite", false);
+            }
         });
     }
 
@@ -81,15 +96,14 @@ $(document).ready(function () {
 
     function displayVideoList(videos) {
         var videoListContainer = $("#videoList");
-        videoListContainer.empty(); // Limpa o conteúdo anterior
+        videoListContainer.empty();
 
         videos.forEach(function (video, index) {
-            // Adiciona uma nova linha a cada 2 vídeos para criar 2 cards por linha
+
             if (index % 2 === 0) {
                 $("#videoList").append("<div class='row'></div>");
             }
 
-            // Cria o card do Bootstrap para cada vídeo
             var videoItem = $("<div class='col-md-6 mb-4'>" +
                 "<div class='card'>" +
                 "<video class='card-img-top' controls preload='none' width='100%' height='auto'>" +
@@ -116,11 +130,11 @@ $(document).ready(function () {
                 "        title='Excluir Vídeo'>" +
                 "    Excluir" +
                 "</button>" +
+                "<i class='fas fa-star favorite-icon' data-video-id='" + video.id + "' data-is-favorite='false'></i>" +
                 "</div>" +
                 "</div>" +
                 "</div>");
 
-            // Adiciona o card à última linha
             $(".row:last").append(videoItem);
         });
 
@@ -134,7 +148,6 @@ $(document).ready(function () {
         var novoTitulo = $("#novoTitulo").val();
         var novaCategoria = $("#novaCategoria").val();
 
-        // Lógica para atualização de vídeo
         var formData = new FormData();
         formData.append("novoTitulo", novoTitulo);
         formData.append("novaCategoria", novaCategoria);
@@ -163,12 +176,10 @@ $(document).ready(function () {
         var videoTitulo = $(this).data('video-titulo');
         var videoCategoria = $(this).data('video-categoria');
 
-        // Preencher campos do modal
         $("#videoIdToUpdate").val(videoIdToUpdate);
         $("#novoTitulo").val(videoTitulo);
         $("#novaCategoria").val(videoCategoria);
 
-        // Abrir o modal
         $("#updateModal").modal('show');
     });
 
@@ -189,10 +200,7 @@ $(document).ready(function () {
     $(document).on("click", ".open-delete-modal", function () {
         var videoIdToDelete = $(this).data('video-id');
 
-        // Adiciona o ID do vídeo ao botão de confirmação de exclusão
         $("#confirmDeleteBtn").data('video-id', videoIdToDelete);
-
-        // Abrir o modal
         $("#deleteModal").modal('show');
     });
 
@@ -200,7 +208,6 @@ $(document).ready(function () {
     $("#confirmDeleteBtn").click(function () {
         var videoIdToDelete = $(this).data('video-id');
 
-        // Lógica para exclusão de vídeo
         $.ajax({
             type: "DELETE",
             url: `http://localhost:8080/videos/${videoIdToDelete}/delete`,
@@ -214,10 +221,35 @@ $(document).ready(function () {
             }
         });
 
-        // Fechar o modal após a exclusão
         $("#deleteModal").modal('hide');
         getVideoList(currentPage, pageSize);
     });
+
+// Evento de clique no ícone de estrela para marcar/desmarcar como favorito
+    $("#videoList").on("click", ".favorite-icon", function () {
+        var videoId = $(this).data("video-id");
+        var isFavorite = $(this).data("is-favorite");
+
+        isFavorite = !isFavorite;
+
+        $(this).data("is-favorite", isFavorite);
+        $(this).toggleClass("fas far");
+
+        $.ajax({
+            type: "PUT",
+            url: `http://localhost:8080/videos/${videoId}/favorito?favorito=${isFavorite}`,
+            success: function (data) {
+                console.log("Vídeo marcado/desmarcado como favorito:", data);
+                getVideoList(currentPage, pageSize);
+            },
+            error: function (error) {
+                console.error("Erro ao marcar/desmarcar vídeo como favorito:", error);
+                $(this).data("is-favorite", !isFavorite);
+                $(this).toggleClass("fas far");
+            }
+        });
+    });
+
 
     // Carregando a primeira página ao carregar a página HTML
     getVideoList(currentPage, pageSize);

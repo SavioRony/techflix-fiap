@@ -69,4 +69,9 @@ public class VideoControler {
         return videoService.deleteVideo(videoId);
     }
 
+    @PutMapping("/{videoId}/favorito")
+    public Mono<Video> marcarDesmarcarFavorito(@PathVariable UUID videoId, @RequestParam boolean favorito) {
+        return videoService.marcarDesmarcarFavorito(videoId, favorito);
+    }
+
 }
