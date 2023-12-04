@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -20,4 +21,7 @@ public interface VideoRepository extends ReactiveMongoRepository<Video, UUID> {
 
     Flux<Video> findAllByCategoriaContainingIgnoreCaseOrderByDataDeCadastroDesc(String categoria);
 
+    Flux<Video> findAllByFavoritoTrue();
+
+    Flux<Video> findAllByCategoriaContainingIgnoreCaseAndIdNotInOrderByDataDeCadastroDesc(String categoriaVideoAleatorio, List<UUID> collect);
 }

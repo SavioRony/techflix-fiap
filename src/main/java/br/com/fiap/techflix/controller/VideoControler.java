@@ -74,4 +74,9 @@ public class VideoControler {
         return videoService.marcarDesmarcarFavorito(videoId, favorito);
     }
 
+    @GetMapping("/recomendados")
+    public Flux<Video> buscarVideoPorCategoria(){
+        return videoService.buscarVideosRecomendadosPorFavoritos();
+    }
+
 }

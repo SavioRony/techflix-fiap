@@ -35,6 +35,7 @@ $(document).ready(function () {
 
         $.get(`http://localhost:8080/videos/titulo?titulo=${titulo}`, function (data) {
             displayVideoList(data)
+            setFavoriteIcons(data)
         });
     });
 
@@ -45,6 +46,7 @@ $(document).ready(function () {
 
         $.get(`http://localhost:8080/videos/categoria?categoria=${categoria}`, function (data) {
             displayVideoList(data)
+            setFavoriteIcons(data)
         });
     });
 
@@ -57,6 +59,7 @@ $(document).ready(function () {
 
         $.get(`http://localhost:8080/videos/data?dataInicio=${dataInicio}&dataFim=${dataFim}`, function (data) {
             displayVideoList(data);
+            setFavoriteIcons(data)
         });
     });
 
@@ -247,6 +250,14 @@ $(document).ready(function () {
                 $(this).data("is-favorite", !isFavorite);
                 $(this).toggleClass("fas far");
             }
+        });
+    });
+
+    // Carregar a lista de vídeos recomendados
+    $("#loadRecommendedBtn").click(function () {
+        $.get(`http://localhost:8080/videos/recomendados`, function (data) {
+            displayVideoList(data);
+            setFavoriteIcons(data);
         });
     });
 

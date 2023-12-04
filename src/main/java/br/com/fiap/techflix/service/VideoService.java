@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -90,6 +91,25 @@ public class VideoService {
                 .flatMap(video -> {
                     video.setFavorito(favorito);
                     return videoRepository.save(video);
+                });
+    }
+
+    public Flux<Video> buscarVideosRecomendadosPorFavoritos() {
+        Flux<Video> favoritos = videoRepository.findAllByFavoritoTrue();
+
+        return favoritos
+                .collectList()
+                .flatMapMany(favoritosList -> {
+                    if (favoritosList.isEmpty()) {
+                        return Flux.empty();
+                    }
+
+                    Video videoAleatorio = favoritosList.get(new Random().nextInt(favoritosList.size()));
+                    String categoriaVideoAleatorio = videoAleatorio.getCategoria();
+
+                    return videoRepository.findAllByCategoriaContainingIgnoreCaseOrderByDataDeCadastroDesc(
+                                    categoriaVideoAleatorio)
+                            .take(10);
                 });
     }
 }
