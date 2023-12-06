@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>Estatísticas - Tech Flix</title>
+</head>
+<body>
+
+<div class="container mt-5">
+    <h1>Estatísticas</h1>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">Estatísticas de Vídeos</h5>
+            <p class="card-text">Quantidade total de vídeos: <span id="totalVideos"></span></p>
+            <p class="card-text">Quantidade de vídeos favoritados: <span id="favoritedVideos"></span></p>
+            <p class="card-text">Média de visualizações: <span id="averageViews"></span></p>
+        </div>
+    </div>
+
+    <a class="btn btn-primary mt-3" href="index.html">Voltar para a lista de vídeos</a>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="app.js"></script>
+<script>
+    // Função para carregar e exibir estatísticas
+    function loadStatistics() {
+        $.get("http://localhost:8080/videos/estatisticas", function (data) {
+            $("#totalVideos").text(data.totalVideos);
+            $("#favoritedVideos").text(data.videosFavoritados);
+            $("#averageViews").text(data.mediaVisualizacoes.toFixed(2) + "%");
+        });
+    }
+
+    // Carregar estatísticas ao carregar a página
+    $(document).ready(function () {
+        loadStatistics();
+    });
+</script>
+
+</body>
+</html>

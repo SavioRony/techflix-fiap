@@ -1,6 +1,7 @@
 package br.com.fiap.techflix.service;
 
 import br.com.fiap.techflix.model.Video;
+import br.com.fiap.techflix.model.dto.Estatisticas;
 import br.com.fiap.techflix.repository.VideoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -17,6 +18,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
@@ -31,9 +34,18 @@ public class VideoService {
     @Autowired
     private VideoRepository videoRepository;
 
-    public Mono<Resource> getVideo(String title) {
-        String filePath = String.format("file:./src/main/resources/uploads/%s.mp4", title);
+    public Mono<Resource> getVideo(String id, String range) {
+        boolean visualizacao = range.substring(6).equals("0-");
+        System.out.println("Visualização: " + visualizacao);
+        String filePath = String.format("file:./src/main/resources/uploads/%s.mp4", id);
         Resource resource = this.resourceLoader.getResource(filePath);
+        if (visualizacao) {
+            return videoRepository.findById(UUID.fromString(id)).flatMap(video -> {
+                video.setVisualizacao(video.getVisualizacao() + 1);
+                return videoRepository.save(video);
+            }).then(Mono.fromSupplier(() -> resource));
+        }
+
         return Mono.fromSupplier(() -> resource);
     }
 
@@ -112,5 +124,15 @@ public class VideoService {
                             .take(10);
                 });
     }
+
+    public Mono<Estatisticas> obterEstatisticas() {
+        Mono<Long> totalVideos = videoRepository.count();
+        Mono<Long> videosFavoritados = videoRepository.countByFavoritoTrue();
+        Mono<Double> mediaVisualizacoes = videoRepository.averageVisualizacao();
+
+        return Mono.zip(totalVideos, videosFavoritados, mediaVisualizacoes)
+                .map(tuple -> new Estatisticas(tuple.getT1(), tuple.getT2(), tuple.getT3() * 100));
+    }
+
 }
 

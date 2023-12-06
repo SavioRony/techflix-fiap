@@ -1,6 +1,7 @@
 package br.com.fiap.techflix.controller;
 
 import br.com.fiap.techflix.model.Video;
+import br.com.fiap.techflix.model.dto.Estatisticas;
 import br.com.fiap.techflix.service.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -12,6 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 
@@ -29,10 +31,9 @@ public class VideoControler {
         return videoService.uploadVideo(titulo,categoria, filePartMono);
     }
 
-    @GetMapping(value = "{title}", produces = "video/mp4")
-    public Mono<Resource> getVideo(@PathVariable("title") String title, @RequestHeader("range") String range) {
-        System.out.println("Range: " + range);
-        return videoService.getVideo(title);
+    @GetMapping(value = "{id}", produces = "video/mp4")
+    public Mono<Resource> getVideo(@PathVariable("id") String id, @RequestHeader("range") String range) {
+        return videoService.getVideo(id, range);
     }
 
     @GetMapping
@@ -77,6 +78,10 @@ public class VideoControler {
     @GetMapping("/recomendados")
     public Flux<Video> buscarVideoPorCategoria(){
         return videoService.buscarVideosRecomendadosPorFavoritos();
+    }
+    @GetMapping("/estatisticas")
+    public Mono<Estatisticas> obterEstatisticas() {
+        return videoService.obterEstatisticas();
     }
 
 }

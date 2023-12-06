@@ -17,7 +17,6 @@ public class Video {
     private String nomeArquivo;
     private LocalDateTime dataDeCadastro;
     private String path;
-    private Integer curtidas;
     private String categoria;
     private Integer visualizacao;
     private Boolean favorito;
@@ -28,7 +27,6 @@ public class Video {
         this.titulo = titulo;
         this.categoria = categoria;
         this.path = "./src/main/resources/uploads/" + this.id + ".mp4";
-        this.curtidas = 0;
         this.dataDeCadastro = LocalDateTime.now();
         this.visualizacao = 0;
         this.favorito = false;
