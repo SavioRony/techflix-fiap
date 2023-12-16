@@ -1,4 +1,4 @@
-package br.com.fiap.techflix.model.dto;
+package br.com.fiap.techflix.domain.dto;
 
 import lombok.Data;
 
