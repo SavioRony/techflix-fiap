@@ -1,89 +1,90 @@
-package br.com.fiap.techflix.service;
+package br.com.fiap.techflix.infrastructure.gateways;
 
-import br.com.fiap.techflix.model.Video;
-import br.com.fiap.techflix.model.dto.Estatisticas;
-import br.com.fiap.techflix.repository.VideoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
+import br.com.fiap.techflix.application.gateway.VideoGateway;
+import br.com.fiap.techflix.infrastructure.controllers.dto.EstatisticaResponse;
+import br.com.fiap.techflix.domain.Video;
+import br.com.fiap.techflix.infrastructure.persistence.VideoEntity;
+import br.com.fiap.techflix.infrastructure.persistence.VideoRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.codec.multipart.FilePart;
-import org.springframework.stereotype.Service;
+import org.springframework.data.domain.PageRequest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-@Service
-public class VideoService {
+public class VideoRepositoryGateway implements VideoGateway {
 
-    @Autowired
-    private ResourceLoader resourceLoader;
+    private final VideoRepository videoRepository;
+
+    private final VideoEntityMapper videoEntityMapper;
+
     private static final String VIDEO_TYPE_FORMAT = "%s.mp4";
     private static final Path basePath = Paths.get("./src/main/resources/uploads");
 
-    @Autowired
-    private VideoRepository videoRepository;
+    private final Random random = new Random();
 
-    public Mono<Resource> getVideo(String id, String range) {
-        boolean visualizacao = range.substring(6).equals("0-");
-        System.out.println("Visualização: " + visualizacao);
-        String filePath = String.format("file:./src/main/resources/uploads/%s.mp4", id);
-        Resource resource = this.resourceLoader.getResource(filePath);
-        if (visualizacao) {
-            return videoRepository.findById(UUID.fromString(id)).flatMap(video -> {
-                video.setVisualizacao(video.getVisualizacao() + 1);
-                return videoRepository.save(video);
-            }).then(Mono.fromSupplier(() -> resource));
-        }
 
-        return Mono.fromSupplier(() -> resource);
+    public VideoRepositoryGateway(VideoRepository videoRepository, VideoEntityMapper videoEntityMapper) {
+        this.videoRepository = videoRepository;
+        this.videoEntityMapper = videoEntityMapper;
     }
 
-    public Mono<Video> uploadVideo(String titulo, String categoria, Mono<FilePart> filePartMono) {
-        Video video = new Video(titulo, categoria);
-        return filePartMono
-                .doOnNext(fp -> video.setNomeArquivo(fp.filename().replace(".mp4", "")))
-                .flatMap(fp -> fp.transferTo(basePath.resolve(String.format(VIDEO_TYPE_FORMAT, video.getId()))))
-                .then(Mono.defer(() -> videoRepository.save(video)));
+    @Override
+    public Mono<Video> buscarVideoUpdateVisualizacao(UUID id) {
+       return videoRepository.findById(id).flatMap(video -> {
+            video.setVisualizacao(video.getVisualizacao() + 1);
+            return videoRepository.save(video);
+        }).map(videoEntityMapper::toDomain);
     }
 
-    public Mono<Page<Video>> buscarVideosPaginado(Pageable pageable) {
+    @Override
+    public Mono<Video> salvarVideo(Video video) {
+        return videoRepository.save(videoEntityMapper.toEntity(video)).map(videoEntityMapper::toDomain);
+    }
+
+    @Override
+    public Mono<Page<Video>> buscarVideosPaginado(PageRequest pageable) {
         return videoRepository.findAllByOrderByDataDeCadastroDesc(pageable).collectList()
                 .zipWith(this.videoRepository.count())
-                .map(p -> new PageImpl<>(p.getT1(), pageable, p.getT2()));
+                .map(p -> new PageImpl<>(videoEntityMapper.mapEntitiesToDomain(p.getT1()), pageable, p.getT2()));
     }
 
+    @Override
     public Flux<Video> buscarVideosPorTitulo(String titulo) {
-        return videoRepository.findAllByTituloContainingIgnoreCaseOrderByDataDeCadastroDesc(titulo);
+        return videoRepository.findAllByTituloContainingIgnoreCaseOrderByDataDeCadastroDesc(titulo)
+                .map(videoEntityMapper::toDomain);
     }
 
+    @Override
     public Flux<Video> buscarVideosPorPeriodo(LocalDateTime dataInicio, LocalDateTime dataFim) {
-        return videoRepository.findAllByDataDeCadastroBetween(dataInicio, dataFim);
+        return videoRepository.findAllByDataDeCadastroBetween(dataInicio, dataFim)
+                .map(videoEntityMapper::toDomain);
     }
 
+    @Override
     public Flux<Video> buscarVideosPorCategoria(String categoria) {
-        return videoRepository.findAllByCategoriaContainingIgnoreCaseOrderByDataDeCadastroDesc(categoria);
+        return videoRepository.findAllByCategoriaContainingIgnoreCaseOrderByDataDeCadastroDesc(categoria)
+                .map(videoEntityMapper::toDomain);
     }
 
+    @Override
     public Mono<Video> updateVideo(UUID videoId, String novoTitulo, String novaCategoria) {
         return videoRepository.findById(videoId)
                 .flatMap(video -> {
                     video.setTitulo(novoTitulo);
                     video.setCategoria(novaCategoria);
                     return videoRepository.save(video);
-                });
+                }).map(videoEntityMapper::toDomain);
     }
 
+    @Override
     public Mono<Void> deleteVideo(UUID videoId) {
         return videoRepository.findById(videoId)
                 .flatMap(video -> {
@@ -98,16 +99,18 @@ public class VideoService {
                 .then();
     }
 
+    @Override
     public Mono<Video> marcarDesmarcarFavorito(UUID videoId, boolean favorito) {
         return videoRepository.findById(videoId)
                 .flatMap(video -> {
                     video.setFavorito(favorito);
                     return videoRepository.save(video);
-                });
+                }).map(videoEntityMapper::toDomain);
     }
 
+    @Override
     public Flux<Video> buscarVideosRecomendadosPorFavoritos() {
-        Flux<Video> favoritos = videoRepository.findAllByFavoritoTrue();
+        Flux<VideoEntity> favoritos = videoRepository.findAllByFavoritoTrue();
 
         return favoritos
                 .collectList()
@@ -116,23 +119,22 @@ public class VideoService {
                         return Flux.empty();
                     }
 
-                    Video videoAleatorio = favoritosList.get(new Random().nextInt(favoritosList.size()));
-                    String categoriaVideoAleatorio = videoAleatorio.getCategoria();
+                    VideoEntity videoEntityAleatorio = favoritosList.get(random.nextInt(favoritosList.size()));
+                    String categoriaVideoAleatorio = videoEntityAleatorio.getCategoria();
 
                     return videoRepository.findAllByCategoriaContainingIgnoreCaseOrderByDataDeCadastroDesc(
                                     categoriaVideoAleatorio)
                             .take(10);
-                });
+                }).map(videoEntityMapper::toDomain);
     }
 
-    public Mono<Estatisticas> obterEstatisticas() {
+    @Override
+    public Mono<EstatisticaResponse> obterEstatisticas() {
         Mono<Long> totalVideos = videoRepository.count();
         Mono<Long> videosFavoritados = videoRepository.countByFavoritoTrue();
         Mono<Double> mediaVisualizacoes = videoRepository.averageVisualizacao();
 
         return Mono.zip(totalVideos, videosFavoritados, mediaVisualizacoes)
-                .map(tuple -> new Estatisticas(tuple.getT1(), tuple.getT2(), tuple.getT3() * 100));
+                .map(tuple -> new EstatisticaResponse(tuple.getT1(), tuple.getT2(), tuple.getT3() * 100));
     }
-
 }
-
