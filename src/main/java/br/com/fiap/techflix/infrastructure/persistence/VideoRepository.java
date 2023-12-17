@@ -1,6 +1,5 @@
-package br.com.fiap.techflix.repository;
+package br.com.fiap.techflix.infrastructure.persistence;
 
-import br.com.fiap.techflix.infrastructure.persistence.VideoEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.Query;

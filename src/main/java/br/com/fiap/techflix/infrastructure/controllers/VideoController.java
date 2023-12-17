@@ -1,7 +1,8 @@
 package br.com.fiap.techflix.infrastructure.controllers;
 
 import br.com.fiap.techflix.application.usecases.VideoUseCase;
-import br.com.fiap.techflix.domain.entity.Video;
+import br.com.fiap.techflix.infrastructure.controllers.dto.EstatisticaResponse;
+import br.com.fiap.techflix.domain.Video;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.codec.multipart.FilePart;
@@ -12,6 +13,7 @@ import reactor.core.publisher.Mono;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("videos")
@@ -64,5 +66,31 @@ public class VideoController {
         return videoUseCase.buscarVideosPorCategoria(categoria);
     }
 
+    @PutMapping("/{videoId}/update")
+    public Mono<Video> updateVideo(@PathVariable UUID videoId,
+                                         @RequestPart("novoTitulo") String novoTitulo,
+                                         @RequestPart("novaCategoria") String novaCategoria) {
+        return videoUseCase.updateVideo(videoId, novoTitulo, novaCategoria);
+    }
+
+    @DeleteMapping("/{videoId}/delete")
+    public Mono<Void> deleteVideo(@PathVariable UUID videoId) {
+        return videoUseCase.deleteVideo(videoId);
+    }
+
+    @PutMapping("/{videoId}/favorito")
+    public Mono<Video> marcarDesmarcarFavorito(@PathVariable UUID videoId, @RequestParam boolean favorito) {
+        return videoUseCase.marcarDesmarcarFavorito(videoId, favorito);
+    }
+
+    @GetMapping("/recomendados")
+    public Flux<Video> buscarVideoPorCategoria() {
+        return videoUseCase.buscarVideosRecomendadosPorFavoritos();
+    }
+
+    @GetMapping("/estatisticas")
+    public Mono<EstatisticaResponse> obterEstatisticas() {
+        return videoUseCase.obterEstatisticas();
+    }
 
 }

@@ -1,4 +1,4 @@
-package br.com.fiap.techflix.domain.entity;
+package br.com.fiap.techflix.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -4,7 +4,7 @@ import br.com.fiap.techflix.application.gateway.VideoGateway;
 import br.com.fiap.techflix.application.usecases.VideoUseCase;
 import br.com.fiap.techflix.infrastructure.gateways.VideoEntityMapper;
 import br.com.fiap.techflix.infrastructure.gateways.VideoRepositoryGateway;
-import br.com.fiap.techflix.repository.VideoRepository;
+import br.com.fiap.techflix.infrastructure.persistence.VideoRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;

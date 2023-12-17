@@ -1,6 +1,6 @@
 package br.com.fiap.techflix.infrastructure.gateways;
 
-import br.com.fiap.techflix.domain.entity.Video;
+import br.com.fiap.techflix.domain.Video;
 import br.com.fiap.techflix.infrastructure.persistence.VideoEntity;
 import org.springframework.stereotype.Component;
 

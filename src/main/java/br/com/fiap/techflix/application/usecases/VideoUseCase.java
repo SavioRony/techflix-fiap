@@ -1,7 +1,8 @@
 package br.com.fiap.techflix.application.usecases;
 
 import br.com.fiap.techflix.application.gateway.VideoGateway;
-import br.com.fiap.techflix.domain.entity.Video;
+import br.com.fiap.techflix.infrastructure.controllers.dto.EstatisticaResponse;
+import br.com.fiap.techflix.domain.Video;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
@@ -51,5 +52,25 @@ public class VideoUseCase {
 
     public Flux<Video> buscarVideosPorCategoria(String categoria) {
         return videoGateway.buscarVideosPorCategoria(categoria);
+    }
+
+    public Mono<Video> updateVideo(UUID videoId, String novoTitulo, String novaCategoria) {
+        return videoGateway.updateVideo(videoId, novoTitulo, novaCategoria);
+    }
+
+    public Mono<Void> deleteVideo(UUID videoId) {
+        return videoGateway.deleteVideo(videoId);
+    }
+
+    public Mono<Video> marcarDesmarcarFavorito(UUID videoId, boolean favorito) {
+        return videoGateway.marcarDesmarcarFavorito(videoId, favorito);
+    }
+
+    public Flux<Video> buscarVideosRecomendadosPorFavoritos() {
+        return videoGateway.buscarVideosRecomendadosPorFavoritos();
+    }
+
+    public Mono<EstatisticaResponse> obterEstatisticas() {
+        return videoGateway.obterEstatisticas();
     }
 }
