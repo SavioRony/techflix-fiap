@@ -3,12 +3,15 @@ package br.com.fiap.techflix.infrastructure.controllers;
 import br.com.fiap.techflix.application.usecases.VideoUseCase;
 import br.com.fiap.techflix.domain.entity.Video;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("videos")
@@ -25,7 +28,7 @@ public class VideoController {
 
     @GetMapping(value = "{id}", produces = "video/mp4")
     public Mono<Resource> getVideo(@PathVariable("id") String id, @RequestHeader("range") String range) {
-        return videoUseCase.getVideo(id, range);
+        return videoUseCase.buscarVideo(id, range);
     }
 
     @PostMapping("/upload")
@@ -39,6 +42,27 @@ public class VideoController {
                 .then(videoUseCase.salvarVideo(video));
     }
 
+    @GetMapping
+    public Mono<Page<Video>> getVideos(@RequestParam(defaultValue = "0") int page,
+                                       @RequestParam(defaultValue = "10") int size) {
+        return videoUseCase.buscarVideosPaginado(page, size);
+    }
+
+    @GetMapping("/titulo")
+    public Flux<Video> buscarVideoPorTitulo(@RequestParam("titulo") String titulo) {
+        return videoUseCase.buscarVideosPorTitulo(titulo);
+    }
+
+    @GetMapping("/data")
+    public Flux<Video> buscarVideosPorPeriodo(@RequestParam("dataInicio") LocalDateTime dataInicio,
+                                              @RequestParam("dataFim") LocalDateTime dataFim) {
+        return videoUseCase.buscarVideosPorPeriodo(dataInicio, dataFim);
+    }
+
+    @GetMapping("/categoria")
+    public Flux<Video> buscarVideoPorCategoria(@RequestParam("categoria") String categoria) {
+        return videoUseCase.buscarVideosPorCategoria(categoria);
+    }
 
 
 }

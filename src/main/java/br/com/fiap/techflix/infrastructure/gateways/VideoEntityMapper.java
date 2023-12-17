@@ -4,6 +4,9 @@ import br.com.fiap.techflix.domain.entity.Video;
 import br.com.fiap.techflix.infrastructure.persistence.VideoEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Component
 public class VideoEntityMapper {
 
@@ -29,6 +32,12 @@ public class VideoEntityMapper {
                 video.getCategoria(),
                 video.getVisualizacao(),
                 video.getFavorito());
+    }
+
+    public List<Video> mapEntitiesToDomain(List<VideoEntity> videoEntities) {
+        return videoEntities.stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
     }
 
 }
