@@ -1,15 +1,15 @@
 package br.com.fiap.techflix.infrastructure.persistence;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Document(collection = "video")
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 @ToString
 @AllArgsConstructor
 public class VideoEntity {

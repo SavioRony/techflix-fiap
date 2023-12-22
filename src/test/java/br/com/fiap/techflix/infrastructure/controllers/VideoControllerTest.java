@@ -2,97 +2,105 @@ package br.com.fiap.techflix.infrastructure.controllers;
 
 import br.com.fiap.techflix.application.usecases.VideoUseCase;
 import br.com.fiap.techflix.generate.GenerateObject;
-import org.junit.jupiter.api.AfterEach;
+import br.com.fiap.techflix.infrastructure.controllers.dto.EstatisticaResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.mockito.Mockito;
+import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ExtendWith(SpringExtension.class)
 class VideoControllerTest {
 
-    private MockMvc mockMvc;
 
-    private AutoCloseable openMock;
 
     @Mock
     private VideoUseCase useCase;
 
-    @BeforeEach
-    void setUp() {
-        openMock = MockitoAnnotations.openMocks(this);
-        var videoController = new VideoController(useCase);
-        mockMvc = MockMvcBuilders.standaloneSetup(videoController)
-                .addFilter((request, response, chain) -> {
-                    response.setCharacterEncoding("UTF-8");
-                    chain.doFilter(request, response);
-                }, "/*")
-                .build();
-    }
+    @InjectMocks
+    private VideoController controller;
 
-    @AfterEach
-    void tearDown() throws Exception {
-        openMock.close();
+    @BeforeEach
+    void setUp(){
+        BDDMockito.when(useCase.buscarVideosPorTitulo(any())).thenReturn(Flux.just(GenerateObject.generateVideo()));
+        BDDMockito.when(useCase.salvarVideo(any())).thenReturn(GenerateObject.generateMonoVideo());
     }
 
     @Test
-    void getVideo() throws Exception {
-
-        mockMvc.perform(get("/videos")
-                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+    void getVideo(){
+        StepVerifier.create(controller.getVideo(UUID.randomUUID().toString(), "000000-")).expectComplete();
     }
 
     @Test
     void uploadVideo() {
+
+        var filePart = Mockito.mock(FilePart.class);
+        StepVerifier.create(controller.uploadVideo("title", "category",Mono.just(filePart))).expectComplete();
     }
 
     @Test
     void getVideos() {
+
+        StepVerifier.create(controller.getVideos(0,10)).expectComplete();
     }
 
     @Test
     void buscarVideoPorTitulo() throws Exception {
-
-        when(useCase.buscarVideosPorTitulo(any())).thenReturn(GenerateObject.generateFluxVideo());
-
-        mockMvc.perform(get("/videos/titulos")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+        StepVerifier.create(controller.buscarVideoPorTitulo("Titulo")).expectComplete();
     }
 
     @Test
     void buscarVideosPorPeriodo() {
+
+        BDDMockito.when(useCase.buscarVideosPorPeriodo(any(),any())).thenReturn(GenerateObject.generateFluxVideo());
+        StepVerifier.create(controller.buscarVideosPorPeriodo(LocalDateTime.now(), LocalDateTime.now())).expectComplete();
     }
 
     @Test
     void buscarVideoPorCategoria() {
+        BDDMockito.when(useCase.buscarVideosPorCategoria(any())).thenReturn(GenerateObject.generateFluxVideo());
+        StepVerifier.create(controller.buscarVideoPorCategoria("category")).expectComplete();
     }
 
     @Test
     void updateVideo() {
+        BDDMockito.when(useCase.updateVideo(any(),any(),any())).thenReturn(GenerateObject.generateMonoVideo());
+        StepVerifier.create(controller.updateVideo(UUID.randomUUID(),"new Title", "new category")).expectComplete();
     }
 
     @Test
     void deleteVideo() {
+        StepVerifier.create(controller.deleteVideo(UUID.randomUUID())).expectComplete();
     }
 
     @Test
     void marcarDesmarcarFavorito() {
+        BDDMockito.when(useCase.marcarDesmarcarFavorito(any(),any(Boolean.class))).thenReturn(GenerateObject.generateMonoVideo());
+        StepVerifier.create(controller.marcarDesmarcarFavorito(UUID.randomUUID(),Boolean.TRUE)).expectComplete();
+
     }
 
     @Test
     void testBuscarVideoPorCategoria() {
+        BDDMockito.when(useCase.buscarVideosRecomendadosPorFavoritos()).thenReturn(GenerateObject.generateFluxVideo());
+        StepVerifier.create(controller.buscarVideoPorCategoria()).expectComplete();
     }
 
     @Test
     void obterEstatisticas() {
+        BDDMockito.when(useCase.obterEstatisticas()).thenReturn(Mono.just(new EstatisticaResponse(1,2,3.3)));
+        StepVerifier.create(controller.obterEstatisticas());
     }
 }

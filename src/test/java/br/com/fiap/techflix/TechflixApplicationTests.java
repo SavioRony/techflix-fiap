@@ -9,5 +9,4 @@ class TechflixApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }
