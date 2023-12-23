@@ -101,6 +101,6 @@ class VideoControllerTest {
     @Test
     void obterEstatisticas() {
         BDDMockito.when(useCase.obterEstatisticas()).thenReturn(Mono.just(new EstatisticaResponse(1,2,3.3)));
-        StepVerifier.create(controller.obterEstatisticas());
+        StepVerifier.create(controller.obterEstatisticas()).expectComplete();
     }
 }
