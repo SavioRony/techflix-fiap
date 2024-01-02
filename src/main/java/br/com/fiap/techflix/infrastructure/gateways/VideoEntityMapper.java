@@ -37,7 +37,7 @@ public class VideoEntityMapper {
     public List<Video> mapEntitiesToDomain(List<VideoEntity> videoEntities) {
         return videoEntities.stream()
                 .map(this::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
 }

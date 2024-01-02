@@ -15,8 +15,8 @@ import reactor.core.publisher.Mono;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Random;
 import java.util.UUID;
 
 public class VideoRepositoryGateway implements VideoGateway {
@@ -28,7 +28,7 @@ public class VideoRepositoryGateway implements VideoGateway {
     private static final String VIDEO_TYPE_FORMAT = "%s.mp4";
     private static final Path basePath = Paths.get("./src/main/resources/uploads");
 
-    private final Random random = new Random();
+    private final SecureRandom random = new SecureRandom();
 
 
     public VideoRepositoryGateway(VideoRepository videoRepository, VideoEntityMapper videoEntityMapper) {
