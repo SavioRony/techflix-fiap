@@ -7,9 +7,12 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.codec.multipart.FilePart;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -17,6 +20,9 @@ public class VideoUseCase {
 
     private final VideoGateway videoGateway;
     private final ResourceLoader resourceLoader;
+    private static final String VIDEO_TYPE_FORMAT = "%s.mp4";
+    private static final Path basePath = Paths.get("./src/main/resources/uploads");
+
 
 
     public VideoUseCase(VideoGateway videoGateway, ResourceLoader resourceLoader) {
@@ -34,8 +40,12 @@ public class VideoUseCase {
         return Mono.fromSupplier(() -> resource);
     }
 
-    public Mono<Video> salvarVideo(Video video) {
-        return videoGateway.salvarVideo(video);
+    public Mono<Video> salvarVideo(String titulo, String categoria, Mono<FilePart> filePartMono) {
+        Video video = new Video(titulo, categoria);
+        return filePartMono
+                .doOnNext(fp -> video.setNomeArquivo(fp.filename().replace(".mp4", "")))
+                .flatMap(fp -> fp.transferTo(basePath.resolve(String.format(VIDEO_TYPE_FORMAT, video.getId()))))
+                .then(videoGateway.salvarVideo(video));
     }
 
     public Mono<Page<Video>> buscarVideosPaginado(int page, int size) {

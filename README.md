@@ -8,7 +8,7 @@ A Clean Architecture prioriza a separação do projeto em camadas, cada uma com 
 
 ### Camada de Entidades (Entities)
 
-- **domain → entity:** Classes de entidade que representam conceitos do domínio da aplicação. Elas não possuem ligações com frameworks ou detalhes de implementação.
+- **domain:** Classes de entidade que representam conceitos do domínio da aplicação. Elas não possuem ligações com frameworks ou detalhes de implementação.
 
 ### Casos de Uso (Use Cases)
 
@@ -131,9 +131,7 @@ Execute o projeto e acesse o link:  ``http://localhost:8080``
 ### Filtros
 1. **Buscar por Título**:
     - Preencha o campo **Título** no formulário **Buscar por Título**.
-
-
-- Clique no botão **Buscar**.
+    - Clique no botão **Buscar**.
 2. **Buscar por Categoria**:
     - Selecione a categoria desejada no formulário **Buscar por Categoria**.
     - Clique no botão **Buscar**.
