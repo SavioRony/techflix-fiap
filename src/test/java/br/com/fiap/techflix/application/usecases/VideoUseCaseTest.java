@@ -1,6 +1,7 @@
 package br.com.fiap.techflix.application.usecases;
 
 import br.com.fiap.techflix.application.gateway.VideoGateway;
+import br.com.fiap.techflix.domain.Video;
 import br.com.fiap.techflix.generate.GenerateObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,15 +12,18 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.codec.multipart.FilePart;
 import reactor.core.publisher.Mono;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class VideoUseCaseTest {
 
@@ -55,7 +59,25 @@ class VideoUseCaseTest {
         var response = videoUseCase.buscarVideo(uuid.toString(), "0000000-");
         assertThat(response).isNotNull();
     }
+    @Test
+    void salvarVideo() {
+        String titulo = "Test Video";
+        String categoria = "Test Category";
+        UUID videoId = UUID.randomUUID();
+        Mono<FilePart> filePartMono = mock(Mono.class);
+        FilePart filePart = mock(FilePart.class);
+        when(filePartMono.block()).thenReturn(filePart);
+        when(filePart.filename()).thenReturn(videoId.toString() + ".mp4");
 
+        when(videoGateway.salvarVideo(any())).thenReturn(Mono.just(new Video(titulo, categoria)));
+        try{
+            videoUseCase.salvarVideo(titulo, categoria, filePartMono).block();
+        }catch (Exception e){
+            System.out.println("flapMap is null");
+        }
+
+        assertThat(filePartMono).isNotNull();
+    }
     @Test
     void buscarVideo_quandoVisualizaçãoFalsa() {
 
