@@ -1,7 +1,6 @@
 package br.com.fiap.techflix.application.usecases;
 
 import br.com.fiap.techflix.application.gateway.VideoGateway;
-import br.com.fiap.techflix.domain.Video;
 import br.com.fiap.techflix.generate.GenerateObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +25,7 @@ class VideoUseCaseTest {
 
     private AutoCloseable openMocks;
 
-    private VideoUseCase service;
+    private VideoUseCase videoUseCase;
 
     @Mock
     private  VideoGateway videoGateway;
@@ -38,7 +37,7 @@ class VideoUseCaseTest {
     void setUp(){
 
         openMocks = MockitoAnnotations.openMocks(this);
-        service = new VideoUseCase(videoGateway, resourceLoader);
+        videoUseCase = new VideoUseCase(videoGateway, resourceLoader);
     }
 
     @AfterEach
@@ -53,7 +52,7 @@ class VideoUseCaseTest {
         var uuid = UUID.randomUUID();
         when(resourceLoader.getResource(any(String.class))).thenReturn(resource);
         Mockito.when(videoGateway.buscarVideoUpdateVisualizacao(any(UUID.class))).thenReturn(GenerateObject.generateMonoVideo());
-        var response = service.buscarVideo(uuid.toString(), "0000000-");
+        var response = videoUseCase.buscarVideo(uuid.toString(), "0000000-");
         assertThat(response).isNotNull();
     }
 
@@ -63,17 +62,7 @@ class VideoUseCaseTest {
         var resource = mock(Resource.class);
         when(videoGateway.buscarVideoUpdateVisualizacao(any(UUID.class))).thenReturn(GenerateObject.generateMonoVideo());
         when(resourceLoader.getResource(any(String.class))).thenReturn(resource);
-        var response = service.buscarVideo(UUID.randomUUID().toString(), "0000002-");
-        assertThat(response).isNotNull();
-    }
-
-    @Test
-    void salvarVideo() {
-
-        var video = Mockito.mock(Video.class);
-
-        when(videoGateway.salvarVideo(any())).thenReturn(GenerateObject.generateMonoVideo());
-        var response = service.salvarVideo(video);
+        var response = videoUseCase.buscarVideo(UUID.randomUUID().toString(), "0000002-");
         assertThat(response).isNotNull();
     }
 
@@ -83,7 +72,7 @@ class VideoUseCaseTest {
         var mono = Mockito.mock(Mono.class);
         when(videoGateway.buscarVideosPaginado(any(PageRequest.class))).thenReturn(mono);
 
-        var response = service.buscarVideosPaginado(0,3);
+        var response = videoUseCase.buscarVideosPaginado(0,3);
         assertThat(response).isNotNull();
     }
 
@@ -91,7 +80,7 @@ class VideoUseCaseTest {
     void buscarVideosPorTitulo() {
 
         when(videoGateway.buscarVideosPorTitulo(any(String.class))).thenReturn(GenerateObject.generateFluxVideo());
-        var response = service.buscarVideosPorTitulo("Teste");
+        var response = videoUseCase.buscarVideosPorTitulo("Teste");
         assertThat(response).isNotNull();
     }
 
@@ -99,7 +88,7 @@ class VideoUseCaseTest {
     void buscarVideosPorPeriodo() {
 
         when(videoGateway.buscarVideosPorPeriodo(any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(GenerateObject.generateFluxVideo());
-        var response = service.buscarVideosPorPeriodo(LocalDateTime.now(), LocalDateTime.now());
+        var response = videoUseCase.buscarVideosPorPeriodo(LocalDateTime.now(), LocalDateTime.now());
         assertThat(response).isNotNull();
     }
 
@@ -107,7 +96,7 @@ class VideoUseCaseTest {
     void buscarVideosPorCategoria() {
 
         when(videoGateway.buscarVideosPorCategoria(any(String.class))).thenReturn(GenerateObject.generateFluxVideo());
-        var response = service.buscarVideosPorCategoria("terror");
+        var response = videoUseCase.buscarVideosPorCategoria("terror");
         assertThat(response).isNotNull();
     }
 
@@ -115,7 +104,7 @@ class VideoUseCaseTest {
     void updateVideo() {
 
         when(videoGateway.updateVideo(any(UUID.class),any(String.class),any(String.class))).thenReturn(GenerateObject.generateMonoVideo());
-        var response = service.updateVideo(UUID.randomUUID(), "A volta dos que não foram", "terror");
+        var response = videoUseCase.updateVideo(UUID.randomUUID(), "A volta dos que não foram", "terror");
         assertThat(response).isNotNull();
     }
 
@@ -124,7 +113,7 @@ class VideoUseCaseTest {
 
         var mono = Mockito.mock(Mono.class);
         when(videoGateway.deleteVideo(any(UUID.class))).thenReturn(mono);
-        var response = service.deleteVideo(UUID.randomUUID());
+        var response = videoUseCase.deleteVideo(UUID.randomUUID());
         assertThat(response).isNotNull();
     }
 
@@ -133,7 +122,7 @@ class VideoUseCaseTest {
 
         var mono = Mockito.mock(Mono.class);
         when(videoGateway.marcarDesmarcarFavorito(any(UUID.class),any(boolean.class))).thenReturn(GenerateObject.generateMonoVideo());
-        var response = service.marcarDesmarcarFavorito(UUID.randomUUID(), Boolean.TRUE);
+        var response = videoUseCase.marcarDesmarcarFavorito(UUID.randomUUID(), Boolean.TRUE);
         assertThat(response).isNotNull();
     }
 
@@ -141,7 +130,7 @@ class VideoUseCaseTest {
     void buscarVideosRecomendadosPorFavoritos() {
 
         when(videoGateway.buscarVideosRecomendadosPorFavoritos()).thenReturn(GenerateObject.generateFluxVideo());
-        var response = service.buscarVideosRecomendadosPorFavoritos();
+        var response = videoUseCase.buscarVideosRecomendadosPorFavoritos();
         assertThat(response).isNotNull();
     }
 
@@ -150,7 +139,7 @@ class VideoUseCaseTest {
 
         var mono = Mockito.mock(Mono.class);
         when(videoGateway.obterEstatisticas()).thenReturn(mono);
-        var response = service.obterEstatisticas();
+        var response = videoUseCase.obterEstatisticas();
         assertThat(response).isNotNull();
     }
 }

@@ -35,7 +35,7 @@ class VideoControllerTest {
     @BeforeEach
     void setUp(){
         BDDMockito.when(useCase.buscarVideosPorTitulo(any())).thenReturn(Flux.just(GenerateObject.generateVideo()));
-        BDDMockito.when(useCase.salvarVideo(any())).thenReturn(GenerateObject.generateMonoVideo());
+        BDDMockito.when(useCase.salvarVideo(any(), any(), any())).thenReturn(GenerateObject.generateMonoVideo());
     }
 
     @Test
